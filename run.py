@@ -12,8 +12,17 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('time_lord')
 
-appliances = SHEET.worksheet('appliances')
+def print_welcome():
+    print("\n\nWelcome to:\n\nTIME LORD\n\n")
+    print("A night rate appliance time-shifting utility, designed to help you program ")
+    print("your appliances to run during cheaper electricity night rates apply.\n")
 
-data = appliances.get_all_values()
 
-print(data)
+def main():
+    """
+    Run all program functions
+    """
+    print_welcome()
+
+
+main()
