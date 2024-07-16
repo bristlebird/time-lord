@@ -26,6 +26,7 @@ times = {
     7: ['7pm to 10pm', '19:00', '22:00'],
     8: ['Exit']
 }
+appliances = ['Dishwasher', 'Washing machine', 'Bread machine', 'Oven', 'Yogurt maker', 'Other', 'Exit' ]
 
 def print_welcome():
     print("\n\nWelcome to:\n\nTIME LORD\n\n")
@@ -55,11 +56,11 @@ def set_times_index():
     7: '7pm to 10pm', - Pinergy Family time
     8: exit
     """
+    print("First, tell me the times that your cheapest electricity rates apply. These are examples of the most ")
+    print("common time windows for lower night rate electricity offered by Irish energy providers in 2024.\n")
     
     while(True):
-        print("First, let me know the time your cheapest electricity rates apply. These are examples of the most ")
-        print("common time windows for lower night rate electricity offered by Irish energy providers in 2024.\n")
-        print("Please choose one of the following options:")
+        print("Please choose one of the following low rate time windows:")
         print_time_options()
         option = ''
         try:
@@ -67,8 +68,8 @@ def set_times_index():
         except:
             print('Wrong input. Please enter a number ...')
         # Check that choice is within range of options
-        if option not in range(1,9): 
-            print('\nInvalid option. Please enter a number between 1 and 8.\n')
+        if option not in range(1,len(times)+1): 
+            print(f"\nInvalid option. Please enter a number between 1 and {len(times)}.\n")
         else:
             # Handle exit
             if option == 8:
@@ -76,6 +77,30 @@ def set_times_index():
                 exit()
             # set time_window
             return option
+
+def set_appliance(appliance_list):
+    """
+    Input #2 — Get the name of the appliance from the list of available appliances.
+    """
+    
+    while(True):
+        print("Please choose the appliance that you're setting a timer for:")
+        for i in range(len(appliance_list)):
+            print (i+1, '--', appliance_list[i] )    
+        option = ''
+        try:
+            option = int(input('Enter your choice: '))            
+        except:
+            print('Wrong input. Please enter a number ...')
+        # Check that choice is within range of options
+        if option not in range(1,len(appliance_list)+1): 
+            print(f"\nInvalid option. Please enter a number between 1 and {len(appliance_list)}.\n")
+        else:
+            # Handle exit
+            if appliance_list[option-1] == 'exit':
+                print('\nExiting Time Lord... thank you & bye bye!\n')
+                exit()
+            return appliance_list[option-1]
 
 def main():
     """
@@ -85,7 +110,8 @@ def main():
     now = datetime.now(pytz.timezone("Europe/Dublin"))
     print("The current time in Ireland is:", now.strftime("%H:%M"))
     times_index = set_times_index()
-    print(f"Selected low rate time window: {times[times_index][0]}")
-    # print(times[times_index])
+    print(f"Selected low rate time window: {times[times_index][0]}\n")
+    appliance = set_appliance( appliances )
+    print(f"Appliance chosen: {appliance}")
 
 main()
