@@ -4,7 +4,6 @@ from datetime import datetime
 # timezone module required to get current local time
 # https://www.freecodecamp.org/news/how-to-get-the-current-time-in-python-with-datetime/
 import pytz 
-import time 
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -17,27 +16,27 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('time_lord')
 
+times = {
+    1: ['12am to 9am', '00:00', '09:00'],
+    2: ['11pm to 8am', '23:00', '08:00'],
+    3: ['2am to 9am', '02:00', '09:00'],
+    4: ['1am to 8am', '01:00', '08:00'],
+    5: ['2am to 4am', '02:00', '04:00'],
+    6: ['2am to 5am', '02:00', '05:00'],
+    7: ['7pm to 10pm', '19:00', '22:00'],
+    8: ['Exit']
+}
+
 def print_welcome():
     print("\n\nWelcome to:\n\nTIME LORD\n\n")
     print("A night rate appliance time-shifting utility, designed to help you program ")
     print("your appliances to run during cheaper electricity night rates apply.\n")
 
-menu_options = {
-    1: '12am to 9am',
-    2: '11pm to 8am',
-    3: '2am to 9am',
-    4: '1am to 8am',
-    5: '2am to 4am',
-    6: '2am to 5am',
-    7: '7pm to 10pm',
-    8: 'Exit',
-}
+def print_time_options():
+    for key in times.keys():
+        print (key, '--', times[key][0] )
 
-def print_menu():
-    for key in menu_options.keys():
-        print (key, '--', menu_options[key] )
-
-def get_night_rate_period():
+def set_times_index():
     """
     Input #1 — Get night rate period from the user.
     Use a menu option to select from preset time windows.
@@ -54,50 +53,39 @@ def get_night_rate_period():
     5: '2am to 4am', - EI cheap boost 
     6: '2am to 5am', — Pinergy EV
     7: '7pm to 10pm', - Pinergy Family time
+    8: exit
     """
-
+    
     while(True):
         print("First, let me know the time your cheapest electricity rates apply. These are examples of the most ")
         print("common time windows for lower night rate electricity offered by Irish energy providers in 2024.\n")
         print("Please choose one of the following options:")
-        print_menu()
+        print_time_options()
         option = ''
         try:
-            option = int(input('Enter your choice: '))
+            option = int(input('Enter your choice: '))            
         except:
             print('Wrong input. Please enter a number ...')
-        #Check what choice was entered and act accordingly
-        if option == 1:
-           print('Handle option \'Option 1\'')
-        elif option == 2:
-            print('Handle option \'Option 2\'')
-        elif option == 3:
-            print('Handle option \'Option 3\'')
-        elif option == 4:
-            print('Handle option \'Option 4\'')
-        elif option == 5:
-            print('Handle option \'Option 5\'')
-        elif option == 6:
-            print('Handle option \'Option 6\'')
-        elif option == 7:
-            print('Handle option \'Option 7\'')
-        elif option == 8:
-            print('\nExiting Time Lord... thank you & bye bye!\n')
-            exit()
-        else:
+        # Check that choice is within range of options
+        if option not in range(1,9): 
             print('\nInvalid option. Please enter a number between 1 and 8.\n')
-
-
+        else:
+            # Handle exit
+            if option == 8:
+                print('\nExiting Time Lord... thank you & bye bye!\n')
+                exit()
+            # set time_window
+            return option
 
 def main():
     """
     Run all program functions
     """
     print_welcome()
-
-    # irelandTz = pytz.timezone("Europe/Dublin") 
     now = datetime.now(pytz.timezone("Europe/Dublin"))
     print("The current time in Ireland is:", now.strftime("%H:%M"))
-    get_night_rate_period()
+    times_index = set_times_index()
+    print(f"Selected low rate time window: {times[times_index][0]}")
+    # print(times[times_index])
 
 main()
