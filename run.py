@@ -1,6 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 # timezone module required to get current local time
 # https://www.freecodecamp.org/news/how-to-get-the-current-time-in-python-with-datetime/
 import pytz
@@ -179,17 +179,92 @@ def compute_result():
     Calculate the start delay / end delay / start time / end time
     from user input.
     """
+    local_tz = "Europe/Dublin"
+    now = datetime.now(pytz.timezone(local_tz))
+    # print("The current time in Ireland is:", now.strftime("%H:%M"))
+
+    # convert window_start & window_end to date objects
+    time_window_start = datetime.strptime(user_data['window_start'],"%H:%M")
+    time_window_end = datetime.strptime(user_data['window_end'],"%H:%M")
+    
+    # add day to window_end if window_start is on previous day 
+    if time_window_start > time_window_end: 
+        time_window_end += timedelta(days=1)
+    # get low rate window duration in hours
+    window_duration = (time_window_end - time_window_start).total_seconds() / 3600
+
+    # cycle duration
+    hours, mins = user_data['duration'].split(':')
+    duration_in_minutes = (int(hours) * 60) + int(mins)    
+
     # Start delay
     if user_data['timer_index'] == 1:
         print("Calculating start delay in hours...\n")
-        # if duration < time window && end_time, entire cycle may be completed at cheap rate.
-        # if 'end_time' is set: start delay = (start_time) - current_time.
-        # start_time = (end_time - duration)
-        # if end_time is after window_end
-        #    & within time window and (end_time - duration) 
-        # is later than window start: start delay = window end - duration
-        #   
-        # calculate number of hours from now until window_end
+        # if current time is within time window, then start dealy is zero: start now!
+        # start delay is the number of hours from present to time_window_start
+        
+        # if 
+
+        # need to set time_window_start to a valid day-
+        # this could be 1) yesterday or today if current time is during time window
+        # 2) today if day change happens during time window 
+        # 3) tomorrow if no day change during time window
+        # start by setting time_window_start to today
+
+        today = date.today()
+        hours, mins = user_data['window_start'].split(':')
+
+        time_window_start = datetime.combine(today, time(int(hours), int(mins)))
+        print(time_window_start)
+
+        # if this time_start_window + time window duration (i.e. time window end) is before now 
+        # (less than current time), then add 1 day  to time window start
+        # make datetime object timezone aware to compare with now
+        tw_end = pytz.timezone(local_tz).localize(time_window_start + timedelta(hours=int(window_duration)))
+        if tw_end < now:
+            # print("add 24 hours")
+            time_window_start += timedelta(hours=24)
+        # add time window duration to time_window_start to get actual time Window end 
+        time_window_end = time_window_start + timedelta(hours=int(window_duration))
+        # print("cheap rate starts: ", time_window_start)
+        # print("cheap rate ends: ", time_window_end)
+        
+        if user_data['end_time'] != False:
+            # end time specified, so start delay = (end time - cycle duration) - now time
+            hours, mins = user_data['end_time'].split(':')
+
+            end_time = pytz.timezone(local_tz).localize(datetime.combine(today, time(int(hours), int(mins))))
+                    
+            # end_time = pytz.timezone(local_tz).localize(datetime.strptime(user_data['end_time'],"%H:%M"))
+            #  if end time is in the past, add 24 hrs
+            if end_time < now:
+                end_time += timedelta(hours=24)
+            start_delay = (end_time - timedelta(minutes=duration_in_minutes)) - now    
+            print("\n———————\nRESULT:\n———————\n")
+            # if int(start_delay.total_seconds()) <= 0:
+            #     print(f"No start delay required as the current time is within the selected cheap rate time window "
+            #         f"— you can start the {user_data['appliance'].lower()} right away.\n\n")
+            # else: 
+            print(f"To finish at {user_data['end_time']}, set the start delay on you {user_data['appliance'].lower()} to "
+                    f"{int(start_delay.total_seconds() // 3600)} hours and {int((start_delay.total_seconds()//60)%60)} minutes.\n\n")
+
+
+        else:
+            # no end time spedified
+            start_delay = pytz.timezone(local_tz).localize(time_window_start) - now
+            # print("tz aware start: ", pytz.timezone(local_tz).localize(time_window_start))
+            # print("now: ", now)
+            # if start delay is negative, you're in the time window so no delay required
+            print("\n———————\nRESULT:\n———————\n")
+            if int(start_delay.total_seconds()) <= 0:
+                print(f"No start delay required as the current time is within the selected cheap rate time window "
+                    f"— you can start the {user_data['appliance'].lower()} right away.\n\n")
+            else: 
+                print(f"Set the start delay on you {user_data['appliance'].lower()} to "
+                    f"{int(start_delay.total_seconds() // 3600)} hours and {int((start_delay.total_seconds()//60)%60)} minutes.\n\n")
+
+            # print(f"start_delay: {start_delay}")            
+
 
     # End delay
     if user_data['timer_index'] == 2:
@@ -204,16 +279,6 @@ def compute_result():
         # just set the end time to window_end?
         # end_time = user_data['window_end']
         # print("Calculating best end time...\n")
-        
-        # convert window_start & window_end to date objects
-        time_window_start = datetime.strptime(user_data['window_start'],"%H:%M")
-        time_window_end = datetime.strptime(user_data['window_end'],"%H:%M")
-        # add day to window_end if window_start is on previous day 
-        if time_window_start > time_window_end: 
-            time_window_end = time_window_end + timedelta(days=1)
-
-        hours, mins = user_data['duration'].split(':')
-        duration_in_minutes = (int(hours) * 60) + int(mins)
         earliest_end_time = time_window_start + timedelta(minutes=duration_in_minutes)
         # if window_start + duration is less than window_end: set end time to 
         # any time between (window_start + duration) and window_end
@@ -240,8 +305,6 @@ def main():
     Run all program functions
     """
     print_welcome()
-    now = datetime.now(pytz.timezone("Europe/Dublin"))
-    # print("The current time in Ireland is:", now.strftime("%H:%M"))
 
     # Step #1:  Select cheap rate time window
     print("———————\nSTEP 1:\n———————\n")
