@@ -148,29 +148,28 @@ def get_end_time(appliance):
     while True:
         # print(f"Would like the {appliance.lower()} to finish at a specific time?")
         # print(f"If not, just leave blank & hit enter, or...")
+        
         end_time = input("Enter the time in HH:MM 24hr clock format (i.e. 23:30 for "
                          "11.30pm)\n")
-        # if validate_time(end_time):
-        #     print("Time entered is in correct format!")
-        #     break
-        break
+        if validate_time(end_time):
+            print("Time entered is in correct format!")
+            break
+        # break
 
     return end_time
 
 
-def validate_time(values):
+def validate_time(time_str):
     """
-    Checks the we have 2 integers, one for hours,
+    Passing required format string to datetime object's strptime method seemed quickest!:
+    https://stackoverflow.com/questions/33076617/how-to-validate-time-format
+    Was going to check for 2 integers, one for hours,
     one for minutes, either side of a :
-    minutes must be within erange of 0-59
-    hours can must be within 0-23 is_clock boolean is true
+    then check minutes within range of 0-59 & hours within 0-23
     """
+    timeformat = "%H:%M"
     try:
-        [int(value) for value in values]
-        if len(values) != 6:
-            raise ValueError(
-                f"Exactly 6 values required, you provided {len(values)}"
-            )
+        datetime.strptime(time_str, timeformat)
     except ValueError as e:
         print(f"Invalid data: {e}, please try again.\n")
         return False
