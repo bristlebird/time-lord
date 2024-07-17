@@ -1,6 +1,6 @@
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime
+from datetime import datetime, timedelta
 # timezone module required to get current local time
 # https://www.freecodecamp.org/news/how-to-get-the-current-time-in-python-with-datetime/
 import pytz
@@ -133,10 +133,8 @@ def get_time_duration(appliance):
     while True:
         print(f"How long will the {appliance.lower()} run?")
         duration = input("Enter the duration in HH:MM\n")
-        # if validate_time(duration):
-        #     print("Time entered is in correct format!")
-        #     break
-        break
+        if validate_time(duration):
+            break
 
     return duration
 
@@ -145,16 +143,15 @@ def get_end_time(appliance):
     """
     Get end clock time from user in format HH:MM 
     """
-    while True:
-        # print(f"Would like the {appliance.lower()} to finish at a specific time?")
-        # print(f"If not, just leave blank & hit enter, or...")
-        
+    while True:       
         end_time = input("Enter the time in HH:MM 24hr clock format (i.e. 23:30 for "
                          "11.30pm)\n")
-        if validate_time(end_time):
-            print("Time entered is in correct format!")
+        # before time validation, check for empty field and return false if empty
+        if not end_time:
+            end_time = False
             break
-        # break
+        elif validate_time(end_time):
+            break
 
     return end_time
 
@@ -182,6 +179,59 @@ def compute_result():
     Calculate the start delay / end delay / start time / end time
     from user input.
     """
+    # Start delay
+    if user_data['timer_index'] == 1:
+        print("Calculating start delay in hours...\n")
+        # if duration < time window && end_time, entire cycle may be completed at cheap rate.
+        # if 'end_time' is set: start delay = (start_time) - current_time.
+        # start_time = (end_time - duration)
+        # if end_time is after window_end
+        #    & within time window and (end_time - duration) 
+        # is later than window start: start delay = window end - duration
+        #   
+        # calculate number of hours from now until window_end
+
+    # End delay
+    if user_data['timer_index'] == 2:
+        print("Calculating end delay in hours...\n")
+
+    # Start time
+    if user_data['timer_index'] == 3:
+        print("Calculating start time...\n")
+    
+    # End time
+    if user_data['timer_index'] == 4:
+        # just set the end time to window_end?
+        # end_time = user_data['window_end']
+        # print("Calculating best end time...\n")
+        
+        # convert window_start & window_end to date objects
+        time_window_start = datetime.strptime(user_data['window_start'],"%H:%M")
+        time_window_end = datetime.strptime(user_data['window_end'],"%H:%M")
+        # add day to window_end if window_start is on previous day 
+        if time_window_start > time_window_end: 
+            time_window_end = time_window_end + timedelta(days=1)
+
+        hours, mins = user_data['duration'].split(':')
+        duration_in_minutes = (int(hours) * 60) + int(mins)
+        earliest_end_time = time_window_start + timedelta(minutes=duration_in_minutes)
+        # if window_start + duration is less than window_end: set end time to 
+        # any time between (window_start + duration) and window_end
+        # otherwise set it to window_end
+
+        print("———————\nRESULT:\n———————\n")
+        if user_data['end_time'] != False:
+            end_time = datetime.strptime(user_data['end_time'],"%H:%M")
+            if time_window_start > end_time: 
+                end_time = end_time + timedelta(days=1)
+        else: 
+            end_time = time_window_end
+
+        if earliest_end_time < end_time: 
+            print(f"To get the most savings, set your {user_data['appliance'].lower()} to finish anytime between {earliest_end_time.strftime("%H:%M")} and {end_time.strftime("%H:%M")}.\n\n")
+        else:
+            print(f"To get the most savings, just set your {user_data['appliance'].lower()} to finish at {end_time.strftime("%H:%M")}.\n\n")
+
     print(f"{user_data}")
 
 
@@ -221,8 +271,6 @@ def main():
     print("———————\nSTEP 4:\n———————\n")
     duration = get_time_duration(appliance)
     user_data['duration'] = duration
-    # print(f"How long will the {appliance.lower()} run?")
-    # duration = input("Enter the duration in HH:MM\n")
 
     hour, min = duration.split(":")
     print("\nRunning time will be: ", hour, "hours and", min, "minutes\n\n")
@@ -239,7 +287,8 @@ def main():
            "specific time, enter it here or just leave it blank & hit enter. \n")
     end_time = get_end_time(appliance)
     user_data['end_time'] = end_time
-    print(f"\nPerfect! You'd like {appliance.lower()} to finish at {end_time}. \n\n")
+    if end_time != False:
+        print(f"\nPerfect! You'd like the {appliance.lower()} to finish at {end_time}. \n\n")
     # print(f"your {appliance.lower()} requires to set the time delay.\n")     
 
     # Step #6 - compute & return result to the user
