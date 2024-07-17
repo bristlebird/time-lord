@@ -3,7 +3,7 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 # timezone module required to get current local time
 # https://www.freecodecamp.org/news/how-to-get-the-current-time-in-python-with-datetime/
-import pytz 
+import pytz
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -16,13 +16,14 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('time_lord')
 
+
 """
 A selection of most common night / cheap rate time windows
     1: '12am to 9am' - Electric Ireland Summer night rate
     2: '11pm to 8am' - Electric Ireland winter night rate
-    3: '1am to 8am', - SSE Airtricity winter 
-    4: '2am to 9am', - SSE Airtricity summer 
-    5: '2am to 4am', - EI cheap boost 
+    3: '1am to 8am', - SSE Airtricity winter
+    4: '2am to 9am', - SSE Airtricity summer
+    5: '2am to 4am', - EI cheap boost
     6: '2am to 5am', — Pinergy EV
     7: '7pm to 10pm', - Pinergy Family time
 """
@@ -36,6 +37,7 @@ times = {
     7: ['7pm to 10pm', '19:00', '22:00'],
     8: ['Exit']
 }
+
 timer_options = {
     1: ['Start delay (number of hours until appliance starts)'],
     2: ['End delay (number of hours until appliance is finished)'],
@@ -45,33 +47,40 @@ timer_options = {
     6: ['Exit']
 }
 
-appliances = ['Dishwasher', 'Washing machine', 'Bread machine', 'Oven', 'Yogurt maker', 'Other', 'Exit' ]
+appliances = ['Dishwasher', 'Washing machine', 'Bread machine',
+              'Oven', 'Yogurt maker', 'Other', 'Exit']
+
 
 def print_welcome():
     print("\n\nWelcome to:\n\nTIME LORD\n\n")
-    print("A night rate appliance time-shifting utility, designed to help you program ")
-    print("your appliances to run when cheaper electricity night rates are in effect.\n")
+    print("A night rate appliance time-shifting utility, designed to help ")
+    print("you program your appliances to run when cheaper electricity ")
+    print("night rates are in effect.\n")
+
 
 def print_time_options():
     for key in times.keys():
-        print (key, '--', times[key][0] )
+        print(key, '--', times[key][0])
+
 
 def set_appliance(appliance_list):
     """
-    Input #2 — Get the name of the appliance from the list of available appliances.
+    Input #2 — Get the name of the appliance from the list of available
+    appliances.
     """
-    while(True):
+    while (True):
         print("Please choose the appliance that you're setting a timer for:")
         for i in range(len(appliance_list)):
-            print (i+1, '--', appliance_list[i] )    
+            print(i+1, '--', appliance_list[i])
         option = ''
         try:
-            option = int(input('Enter your choice: '))            
-        except:
+            option = int(input('Enter your choice: '))
+        except ValueError:
             print('Wrong input. Please enter a number ...')
         # Check that choice is within range of options
-        if option not in range(1,len(appliance_list)+1): 
-            print(f"\nInvalid option. Please enter a number between 1 and {len(appliance_list)}.\n")
+        if option not in range(1, len(appliance_list)+1):
+            print("\nInvalid option. Please enter a number between 1 and "
+                  f"{len(appliance_list)}")
         else:
             # Handle exit
             if appliance_list[option-1].lower() == 'exit':
@@ -82,21 +91,23 @@ def set_appliance(appliance_list):
 
 def get_menu_index_from(menu_dict):
     """
-    Allows user to choose an option from a menu dictionary passed as an argument
+    Allows user to choose an option from a menu dictionary
+    passed as an argument
     """
-    while(True):
+    while (True):
         print("Please choose one of the following options:")
         for key in menu_dict.keys():
-            print (key, '--', menu_dict[key][0] )
+            print(key, '--', menu_dict[key][0])
 
         option = ''
         try:
-            option = int(input('Enter your choice: '))            
-        except:
+            option = int(input('Enter your choice: '))
+        except ValueError:
             print('Wrong input. Please enter a number ...')
         # Check that choice is within range of options
-        if option not in range(1,len(menu_dict)+1): 
-            print(f"\nInvalid option. Please enter a number between 1 and {len(menu_dict)}.\n")
+        if option not in range(1, len(menu_dict)+1):
+            print("\nInvalid option. Please enter a number between 1 and "
+                  f"{len(menu_dict)}.\n")
         else:
             # Handle exit
             if menu_dict[option][0].lower() == 'exit':
@@ -106,6 +117,41 @@ def get_menu_index_from(menu_dict):
             return option
 
 
+def get_time_duration(appliance):
+    """
+    Get time duration from user in format HH:MM
+    """
+    while True:
+        print(f"How long will the {appliance.lower()} run?")
+        duration = input("Enter the duration in HH:MM\n")
+        # if validate_time(duration):
+        #     print("Time entered is in correct format!")
+        #     break
+        break
+
+    return duration
+
+
+def validate_time(values):
+    """
+    Checks the we have 2 integers, one for hours,
+    one for minutes, either side of a :
+    minutes must be within erange of 0-59
+    hours can must be within 0-23 is_clock boolean is true
+    """
+    try:
+        [int(value) for value in values]
+        if len(values) != 6:
+            raise ValueError(
+                f"Exactly 6 values required, you provided {len(values)}"
+            )
+    except ValueError as e:
+        print(f"Invalid data: {e}, please try again.\n")
+        return False
+
+    return True
+
+
 def main():
     """
     Run all program functions
@@ -113,28 +159,31 @@ def main():
     print_welcome()
     now = datetime.now(pytz.timezone("Europe/Dublin"))
     # print("The current time in Ireland is:", now.strftime("%H:%M"))
-    
+
     # Step #1:  Select cheap rate time window
-    print("\nFirst, tell me the times that your cheapest electricity rates apply. These are examples of the most ")
-    print("common time windows for lower night rate electricity offered by Irish energy providers in 2024.\n")
+    print("\nFirst, tell me the times that your cheapest electricity rates "
+          "apply. These are the most common time windows for lower night rate "
+          "electricity offered by Irish energy providers in 2024.\n")
     times_index = get_menu_index_from(times)
     print(f"\nSelected low rate time window: {times[times_index][0]}\n")
-    
+
     # Step #2: Select the appliance timer is being set on (for feedback only)
     appliance = set_appliance(appliances)
     print(f"\nAppliance chosen: {appliance}\n")
 
     # Step #3: Select timer option / required input (what we need to calculate)
-    print(f"Now, tell me which of the following best describes the input your {appliance.lower()} requires to set the time delay.\n")
+    print("Now, tell me which of the following best describes the input \n")
+    print(f"your {appliance.lower()} requires to set the time delay.\n")
     timer_index = get_menu_index_from(timer_options)
     print(f"\nSelected timer option: {timer_options[timer_index][0]}\n")
 
     # Step #4: Get cycle duration / running / cooking time
-    print(f"How long will the {appliance.lower()} run?")
-    duration = input("Enter the duration in HH:MM\n")
-    hour, min = duration.split(":")
-    print("Running time will be: " hour, "hours and", min, "minutes")
+    duration = get_time_duration(appliance)
+    # print(f"How long will the {appliance.lower()} run?")
+    # duration = input("Enter the duration in HH:MM\n")
 
-    
+    hour, min = duration.split(":")
+    print("Running time will be: ", hour, "hours and", min, "minutes")
+
 
 main()
