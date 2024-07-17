@@ -50,7 +50,7 @@ appliances = ['Dishwasher', 'Washing machine', 'Bread machine', 'Oven', 'Yogurt 
 def print_welcome():
     print("\n\nWelcome to:\n\nTIME LORD\n\n")
     print("A night rate appliance time-shifting utility, designed to help you program ")
-    print("your appliances to run during cheaper electricity night rates apply.\n")
+    print("your appliances to run when cheaper electricity night rates are in effect.\n")
 
 def print_time_options():
     for key in times.keys():
@@ -112,18 +112,29 @@ def main():
     """
     print_welcome()
     now = datetime.now(pytz.timezone("Europe/Dublin"))
-    print("The current time in Ireland is:", now.strftime("%H:%M"))
-
+    # print("The current time in Ireland is:", now.strftime("%H:%M"))
+    
+    # Step #1:  Select cheap rate time window
     print("\nFirst, tell me the times that your cheapest electricity rates apply. These are examples of the most ")
     print("common time windows for lower night rate electricity offered by Irish energy providers in 2024.\n")
     times_index = get_menu_index_from(times)
     print(f"\nSelected low rate time window: {times[times_index][0]}\n")
-
-    # print("Next, select which appliance you're setting a timer for.\n")
-    appliance = set_appliance( appliances )
+    
+    # Step #2: Select the appliance timer is being set on (for feedback only)
+    appliance = set_appliance(appliances)
     print(f"\nAppliance chosen: {appliance}\n")
+
+    # Step #3: Select timer option / required input (what we need to calculate)
     print(f"Now, tell me which of the following best describes the input your {appliance.lower()} requires to set the time delay.\n")
     timer_index = get_menu_index_from(timer_options)
     print(f"\nSelected timer option: {timer_options[timer_index][0]}\n")
+
+    # Step #4: Get cycle duration / running / cooking time
+    print(f"How long will the {appliance.lower()} run?")
+    duration = input("Enter the duration in HH:MM\n")
+    hour, min = duration.split(":")
+    print("Running time will be: " hour, "hours and", min, "minutes")
+
+    
 
 main()
