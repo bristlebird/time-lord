@@ -50,6 +50,15 @@ timer_options = {
 appliances = ['Dishwasher', 'Washing machine', 'Bread machine',
               'Oven', 'Yogurt maker', 'Other', 'Exit']
 
+# dictionary to hold validated user data, used to compute result 
+user_data = {
+    'appliance': '',
+    'window_start': '',
+    'window_end': '',
+    'timer_index': '',
+    'duration': '',
+    'end_time': ''
+}
 
 def print_welcome():
     print("\n\nWelcome to:\n\nTIME LORD\n\n")
@@ -132,6 +141,23 @@ def get_time_duration(appliance):
     return duration
 
 
+def get_end_time(appliance):
+    """
+    Get end clock time from user in format HH:MM 
+    """
+    while True:
+        # print(f"Would like the {appliance.lower()} to finish at a specific time?")
+        # print(f"If not, just leave blank & hit enter, or...")
+        end_time = input("Enter the time in HH:MM 24hr clock format (i.e. 23:30 for "
+                         "11.30pm)\n")
+        # if validate_time(end_time):
+        #     print("Time entered is in correct format!")
+        #     break
+        break
+
+    return end_time
+
+
 def validate_time(values):
     """
     Checks the we have 2 integers, one for hours,
@@ -152,6 +178,14 @@ def validate_time(values):
     return True
 
 
+def compute_result():
+    """
+    Calculate the start delay / end delay / start time / end time
+    from user input.
+    """
+    print(f"{user_data}")
+
+
 def main():
     """
     Run all program functions
@@ -161,29 +195,55 @@ def main():
     # print("The current time in Ireland is:", now.strftime("%H:%M"))
 
     # Step #1:  Select cheap rate time window
-    print("\nFirst, tell me the times that your cheapest electricity rates "
+    print("———————\nSTEP 1:\n———————\n")
+    print("First, tell me the times that your cheapest electricity rates "
           "apply. These are the most common time windows for lower night rate "
           "electricity offered by Irish energy providers in 2024.\n")
     times_index = get_menu_index_from(times)
-    print(f"\nSelected low rate time window: {times[times_index][0]}\n")
+    user_data['window_start'] = times[times_index][1]
+    user_data['window_end'] = times[times_index][2]
+    print(f"\nSelected low rate time window: {times[times_index][0]}\n\n")
 
     # Step #2: Select the appliance timer is being set on (for feedback only)
+    print("———————\nSTEP 2:\n———————\n")
     appliance = set_appliance(appliances)
-    print(f"\nAppliance chosen: {appliance}\n")
+    user_data['appliance'] = appliance
+    print(f"\nAppliance chosen: {appliance}\n\n")
 
     # Step #3: Select timer option / required input (what we need to calculate)
-    print("Now, tell me which of the following best describes the input \n")
-    print(f"your {appliance.lower()} requires to set the time delay.\n")
+    print("———————\nSTEP 3:\n———————\n")
+    print("Now, tell me which of the following best describes the input"
+          f" your {appliance.lower()} requires to set the time delay.\n")
     timer_index = get_menu_index_from(timer_options)
-    print(f"\nSelected timer option: {timer_options[timer_index][0]}\n")
+    user_data['timer_index'] = timer_index
+    print(f"\nSelected timer option: {timer_options[timer_index][0]}\n\n")
 
     # Step #4: Get cycle duration / running / cooking time
+    print("———————\nSTEP 4:\n———————\n")
     duration = get_time_duration(appliance)
+    user_data['duration'] = duration
     # print(f"How long will the {appliance.lower()} run?")
     # duration = input("Enter the duration in HH:MM\n")
 
     hour, min = duration.split(":")
-    print("Running time will be: ", hour, "hours and", min, "minutes")
+    print("\nRunning time will be: ", hour, "hours and", min, "minutes\n\n")
 
+    # Step #5: Set the time you would like the appliance to finish at,
+    # i.e. you might want your bread to finish cooking at 7am. 
+    # Input required if user selected end time (option 4) in Step #3 otherwise optional
+    print("———————\nSTEP 5:\n———————\n")
+    if timer_index == 4:
+        print(f"Lastly, you selected end time (option 4) as the timer input for your "
+           f"{appliance.lower()}, so please enter that here. \n")
+    else:
+        print(f"Lastly, if you'd like the {appliance.lower()} to finish at a "
+           "specific time, enter it here or just leave it blank & hit enter. \n")
+    end_time = get_end_time(appliance)
+    user_data['end_time'] = end_time
+    print(f"\nPerfect! You'd like {appliance.lower()} to finish at {end_time}. \n\n")
+    # print(f"your {appliance.lower()} requires to set the time delay.\n")     
+
+    # Step #6 - compute & return result to the user
+    compute_result()
 
 main()
