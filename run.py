@@ -7,8 +7,10 @@ import pytz
 
 local_tz = "Europe/Dublin"
 now = datetime.now(pytz.timezone(local_tz))
-RESULT_BANNER = "\n\n———————\nRESULT:\n———————\n\n"
-"The current time in Ireland is: " + now.strftime("%H:%M") + "\n"
+RESULT_BANNER = (
+    f"\n\n———————\nRESULT:\n———————\n\n"
+    f"The current time in Ireland is: {now.strftime('%H:%M')}\n"
+)
 
 """
 A selection of most common night / cheap rate time windows
@@ -271,7 +273,7 @@ def compute_result():
                 )
             else:
                 print(
-                    f"Set the start delay on you "
+                    f"Set the start delay on your "
                     f"{user_data['appliance'].lower()} to "
                     f"{int(start_delay.total_seconds() // 3600)} hours and "
                     f"{int((start_delay.total_seconds()//60)%60)} minutes.\n\n"
