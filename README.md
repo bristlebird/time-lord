@@ -84,26 +84,19 @@ If you want to fork this project and deploy this app on Heroku, you can follow t
 
 ## Testing
 
-### Manual Testing
+### Manual Tests
 
 | Test | Result |
-|--|--|
-|After welcome message user prompted for name|Pass|
+| -- | -- |
+| User prompted with step 1 menu choice after intro message | Pass |
 
-#### Error handling
-
-The following tests are on the error handling throughout the project.
-If the error handling works as expected it will be marked as pass.
-If it does not work as expected then it will be marked as a fail.
-> Enter Name Field
-Error Msg: User must enter a name of at least 3 characters and it must be all letters.
+### Error handling tests
 
 | Test | Result |
-|--|--|
-| Menu selection: User enters emptry string | Pass |
+| -- | -- |
+| Menu selection: User enters empty string | Pass |
 | Menu selection: User enters number out of range | Pass |
 | Menu selection: User enters any random letters | Pass |
-| User tried to enter a name with a space in it|Fail|
 
 ### Pep8 Code Linter
 [Code Institute's Pep8 Python Linter](https://pep8ci.herokuapp.com/) was used to correctly format python code and ensure it was free from errors:
@@ -114,6 +107,6 @@ Error Msg: User must enter a name of at least 3 characters and it must be all le
  - [Time input validation in python](https://stackoverflow.com/questions/33076617/how-to-validate-time-format)
  - [Get duration between 2 python datetime objects](https://stackoverflow.com/questions/43305577/python-calculate-the-difference-between-two-datetime-time-objects) 
  - [Alan Bushell's Blackjack project Readme structure](https://github.com/Alan-Bushell/blackjack/)
- - 
+
     
 
