@@ -66,15 +66,13 @@ user_data = {
 
 
 def print_welcome():
+    """
+    Prints welcome message when program loads
+    """
     print("\n\nWelcome to:\n\nTIME LORD\n\n")
     print("A night rate appliance time-shifting utility, designed to help ")
     print("you program your appliances to run when cheaper electricity ")
     print("night rates are in effect.\n")
-
-
-def print_time_options():
-    for key in times.keys():
-        print(key, '--', times[key][0])
 
 
 def set_appliance(appliance_list):
@@ -180,7 +178,11 @@ def validate_time(time_str):
 
 # def add_date_to_time():
 
-
+# def calculate_start_delay():
+# def calculate_end_delay():
+# def calculate_start_time():
+# def calculate_end_time():
+    
 def compute_result():
     """
     Calculate the start delay / end delay / start time / end time
@@ -201,65 +203,55 @@ def compute_result():
     hours, mins = user_data['duration'].split(':')
     duration_in_minutes = (int(hours) * 60) + int(mins)
 
-    time_window_text = "Your electricity low rate runs from " + user_data['window_start'] + " to " + user_data['window_end'] +"\n"
+    selected_time_window = "Your electricity low rate runs from " + user_data['window_start'] + " to " + user_data['window_end'] +"\n"
 
-    # Start delay
+    # get end time into correct format for calculations if it's set 
+    # by adding todays date and making timezone aware
+    today = date.today()
+    if user_data['end_time']:
+        hours, mins = user_data['end_time'].split(':')
+        end_time = pytz.timezone(local_tz).localize(datetime.combine(today, time(int(hours), int(mins))))                    
+        #  if end time is in the past, add 24 hrs
+        if end_time < now:
+            end_time += timedelta(hours=24)    
+
+    # set time_window_start date object to today & make timezone aware
+    hours, mins = user_data['window_start'].split(':')
+    time_window_start = pytz.timezone(local_tz).localize(datetime.combine(today, time(int(hours), int(mins))))
+
+    # if time window end (time_start_window + time window duration) has passed  
+    # (less than current time), then add 24 hrs to time window start date
+    tw_end = time_window_start + timedelta(hours=int(window_duration))
+    if tw_end < now:
+        time_window_start += timedelta(hours=24)
+    # add time window duration to time_window_start to get actual (timezone aware) time window end 
+    time_window_end = time_window_start + timedelta(hours=int(window_duration))
+
+    print(RESULT_BANNER)
+    print(selected_time_window)
+
+    # Start delay -----------------------
     if user_data['timer_index'] == 1:
-        print("Calculating start delay in hours...\n")
-        # if current time is within time window, no delay so start now!
-        # start delay is the number of hours from present to time_window_start
-        # time_window_start must be set to a valid day to calculate time tuntil then 
-        # this could be:
-        # 1) yesterday if current time is during time window & after midnight
-        # 2) later or earlier today if day change happens during time window & current time is before midnight
-        # 3) tomorrow if no day change during time window
         
-        # start by setting time_window_start date object to today
-        today = date.today()
-        hours, mins = user_data['window_start'].split(':')
-        time_window_start = datetime.combine(today, time(int(hours), int(mins)))
-        print(time_window_start)
-
-        # if time window end (time_start_window + time window duration) has passed  
-        # (less than current time), then add 24 hrs to time window start date
-        # First, make the datetime object timezone aware to compare with now
-        tw_end = pytz.timezone(local_tz).localize(time_window_start + timedelta(hours=int(window_duration)))
-        if tw_end < now:
-            time_window_start += timedelta(hours=24)
-        # add time window duration to time_window_start to get actual time Window end 
-        time_window_end = time_window_start + timedelta(hours=int(window_duration))
-        # print("cheap rate starts: ", time_window_start)
-        # print("cheap rate ends: ", time_window_end)
-        
-        if user_data['end_time'] != False:
+        if user_data['end_time']:
             # end time specified, so start delay = (end time - cycle duration) - now time
-            hours, mins = user_data['end_time'].split(':')
-
-            end_time = pytz.timezone(local_tz).localize(datetime.combine(today, time(int(hours), int(mins))))
-                    
-            # end_time = pytz.timezone(local_tz).localize(datetime.strptime(user_data['end_time'],"%H:%M"))
-            #  if end time is in the past, add 24 hrs
-            if end_time < now:
-                end_time += timedelta(hours=24)
-            start_delay = (end_time - timedelta(minutes=duration_in_minutes)) - now    
-            print(RESULT_BANNER)
-            print(time_window_text)
-            # if int(start_delay.total_seconds()) <= 0:
-            #     print(f"No start delay required as the current time is within the selected cheap rate time window "
-            #         f"— you can start the {user_data['appliance'].lower()} right away.\n\n")
-            # else: 
-            print(f"To finish at {user_data['end_time']}, set the start delay on you {user_data['appliance'].lower()} to "
+            # calculate start delay from future preferred end time
+            start_delay = (end_time - timedelta(minutes=duration_in_minutes)) - now
+                
+            print(f"To finish at {user_data['end_time']}, set the start delay on your {user_data['appliance'].lower()} to "
                     f"{int(start_delay.total_seconds() // 3600)} hours and {int((start_delay.total_seconds()//60)%60)} minutes.\n\n")
-
-
+            # if end time is later than the time window end, suggest an alternate earlier start delay
+            if end_time > time_window_end:
+                start_delay = (time_window_end - timedelta(minutes=duration_in_minutes)) - now
+                print(f"WARNING! Your preferred end time falls outside of the selected low rate time window. \n"
+                      f"To maximise savings, you could set the start delay to "
+                      f"{int(start_delay.total_seconds() // 3600)} hours and {int((start_delay.total_seconds()//60)%60)} minutes instead.\n"
+                      f"This would result in your {user_data['appliance'].lower()} finishing at {user_data['window_end']}.\n")
+                
         else:
-            # no end time spedified
-            start_delay = pytz.timezone(local_tz).localize(time_window_start) - now
-            # print("tz aware start: ", pytz.timezone(local_tz).localize(time_window_start))
-            # print("now: ", now)
+            # no end time specified, so start delay = time window start - current time
+            start_delay = time_window_start - now
             # if start delay is negative, you're in the time window so no delay required
-            print(RESULT_BANNER)
-            print(time_window_text)
             if int(start_delay.total_seconds()) <= 0:
                 print(f"No start delay required as the current time is within the selected cheap rate time window "
                     f"— you can start the {user_data['appliance'].lower()} right away.\n\n")
@@ -267,42 +259,60 @@ def compute_result():
                 print(f"Set the start delay on you {user_data['appliance'].lower()} to "
                     f"{int(start_delay.total_seconds() // 3600)} hours and {int((start_delay.total_seconds()//60)%60)} minutes.\n\n")
 
-            # print(f"start_delay: {start_delay}")            
-
-
-    # End delay
+    # End delay -----------------------
     if user_data['timer_index'] == 2:
-        print("Calculating end delay in hours...\n")
+        # end delay is number of hours from now until time window end
+        # or end time if specified - check this first
 
-    # Start time
+        if user_data['end_time']:
+            end_delay = end_time - now
+            print(f"To finish at {user_data['end_time']}, set the start delay on your {user_data['appliance'].lower()} to "
+                  f"{int(end_delay.total_seconds() // 3600)} hours and {int((end_delay.total_seconds()//60)%60)} minutes.\n\n")
+        else: 
+            end_delay = time_window_end - now
+            print(f"Set the end delay on you {user_data['appliance'].lower()} to "
+                  f"{int(end_delay.total_seconds() // 3600)} hours and {int((end_delay.total_seconds()//60)%60)} minutes.\n\n")
+
+    # Start time -----------------------
     if user_data['timer_index'] == 3:
         print("Calculating start time...\n")
-    
-    # End time
-    if user_data['timer_index'] == 4:
-        # just set the end time to window_end?
-        # end_time = user_data['window_end']
-        # print("Calculating best end time...\n")
-        earliest_end_time = time_window_start + timedelta(minutes=duration_in_minutes)
-        # if window_start + duration is less than window_end: set end time to 
-        # any time between (window_start + duration) and window_end
-        # otherwise set it to window_end
+        if user_data['end_time']:
+            if (end_time - timedelta(minutes = duration_in_minutes) > now):
+                # start at future time 
+                start_time = end_time - timedelta(minutes = duration_in_minutes)
+                print(f"To finish at {user_data['end_time']}, set the start delay on your {user_data['appliance'].lower()} to "
+                    f"{int(end_delay.total_seconds() // 3600)} hours and {int((end_delay.total_seconds()//60)%60)} minutes.\n\n")
 
-        print(RESULT_BANNER)
-        print(time_window_text)
-        if user_data['end_time'] != False:
-            end_time = datetime.strptime(user_data['end_time'],"%H:%M")
+            # else: 
+                # start is in past, so start now and tell user time it'll actually finish
+
+        
+        # if end time specified and (end time - cycle duration) is later than now, 
+        #   set start time to (end time - cycle duration)
+        # if (time window end - cycle duration) is earlier than current time, start now 
+        
+        # 
+        # if no end time specified and time start window is later than current time, set start time to time window start
+        # if 
+
+    
+    # End time -----------------------
+    if user_data['timer_index'] == 4:
+        # if earliest end time (window_start + duration) is less than time_window_end: set end time to 
+        # any time between earliest end time and time_window_end
+        # otherwise just set it to time_window_end
+        earliest_end_time = time_window_start + timedelta(minutes=duration_in_minutes)
+        if user_data['end_time']:
             if time_window_start > end_time: 
                 end_time = end_time + timedelta(days=1)
         else: 
+            # just set it to time window end if no end time specified
             end_time = time_window_end
 
         if earliest_end_time < end_time: 
             print(f"To get the most savings, set your {user_data['appliance'].lower()} to finish anytime between {earliest_end_time.strftime("%H:%M")} and {end_time.strftime("%H:%M")}.\n\n")
         else:
             print(f"To get the most savings, just set your {user_data['appliance'].lower()} to finish at {end_time.strftime("%H:%M")}.\n\n")
-
-    print(f"{user_data}")
 
 
 def main():
