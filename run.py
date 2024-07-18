@@ -17,6 +17,10 @@ GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('time_lord')
 
 
+local_tz = "Europe/Dublin"
+now = datetime.now(pytz.timezone(local_tz))
+RESULT_BANNER = "\n\n———————\nRESULT:\n———————\n\nThe current time in Ireland is: " + now.strftime("%H:%M") + "\n"
+
 """
 A selection of most common night / cheap rate time windows
     1: '12am to 9am' - Electric Ireland Summer night rate
@@ -59,6 +63,7 @@ user_data = {
     'duration': '',
     'end_time': ''
 }
+
 
 def print_welcome():
     print("\n\nWelcome to:\n\nTIME LORD\n\n")
@@ -173,15 +178,14 @@ def validate_time(time_str):
 
     return True
 
+# def add_date_to_time():
+
 
 def compute_result():
     """
     Calculate the start delay / end delay / start time / end time
     from user input.
     """
-    local_tz = "Europe/Dublin"
-    now = datetime.now(pytz.timezone(local_tz))
-    # print("The current time in Ireland is:", now.strftime("%H:%M"))
 
     # convert window_start & window_end to date objects
     time_window_start = datetime.strptime(user_data['window_start'],"%H:%M")
@@ -195,34 +199,32 @@ def compute_result():
 
     # cycle duration
     hours, mins = user_data['duration'].split(':')
-    duration_in_minutes = (int(hours) * 60) + int(mins)    
+    duration_in_minutes = (int(hours) * 60) + int(mins)
+
+    time_window_text = "Your electricity low rate runs from " + user_data['window_start'] + " to " + user_data['window_end'] +"\n"
 
     # Start delay
     if user_data['timer_index'] == 1:
         print("Calculating start delay in hours...\n")
-        # if current time is within time window, then start dealy is zero: start now!
+        # if current time is within time window, no delay so start now!
         # start delay is the number of hours from present to time_window_start
-        
-        # if 
-
-        # need to set time_window_start to a valid day-
-        # this could be 1) yesterday or today if current time is during time window
-        # 2) today if day change happens during time window 
+        # time_window_start must be set to a valid day to calculate time tuntil then 
+        # this could be:
+        # 1) yesterday if current time is during time window & after midnight
+        # 2) later or earlier today if day change happens during time window & current time is before midnight
         # 3) tomorrow if no day change during time window
-        # start by setting time_window_start to today
-
+        
+        # start by setting time_window_start date object to today
         today = date.today()
         hours, mins = user_data['window_start'].split(':')
-
         time_window_start = datetime.combine(today, time(int(hours), int(mins)))
         print(time_window_start)
 
-        # if this time_start_window + time window duration (i.e. time window end) is before now 
-        # (less than current time), then add 1 day  to time window start
-        # make datetime object timezone aware to compare with now
+        # if time window end (time_start_window + time window duration) has passed  
+        # (less than current time), then add 24 hrs to time window start date
+        # First, make the datetime object timezone aware to compare with now
         tw_end = pytz.timezone(local_tz).localize(time_window_start + timedelta(hours=int(window_duration)))
         if tw_end < now:
-            # print("add 24 hours")
             time_window_start += timedelta(hours=24)
         # add time window duration to time_window_start to get actual time Window end 
         time_window_end = time_window_start + timedelta(hours=int(window_duration))
@@ -240,7 +242,8 @@ def compute_result():
             if end_time < now:
                 end_time += timedelta(hours=24)
             start_delay = (end_time - timedelta(minutes=duration_in_minutes)) - now    
-            print("\n———————\nRESULT:\n———————\n")
+            print(RESULT_BANNER)
+            print(time_window_text)
             # if int(start_delay.total_seconds()) <= 0:
             #     print(f"No start delay required as the current time is within the selected cheap rate time window "
             #         f"— you can start the {user_data['appliance'].lower()} right away.\n\n")
@@ -255,7 +258,8 @@ def compute_result():
             # print("tz aware start: ", pytz.timezone(local_tz).localize(time_window_start))
             # print("now: ", now)
             # if start delay is negative, you're in the time window so no delay required
-            print("\n———————\nRESULT:\n———————\n")
+            print(RESULT_BANNER)
+            print(time_window_text)
             if int(start_delay.total_seconds()) <= 0:
                 print(f"No start delay required as the current time is within the selected cheap rate time window "
                     f"— you can start the {user_data['appliance'].lower()} right away.\n\n")
@@ -284,7 +288,8 @@ def compute_result():
         # any time between (window_start + duration) and window_end
         # otherwise set it to window_end
 
-        print("———————\nRESULT:\n———————\n")
+        print(RESULT_BANNER)
+        print(time_window_text)
         if user_data['end_time'] != False:
             end_time = datetime.strptime(user_data['end_time'],"%H:%M")
             if time_window_start > end_time: 
