@@ -80,7 +80,7 @@ def set_appliance(appliance_list):
             print(i+1, '--', appliance_list[i])
         option = ''
         try:
-            option = int(input('Enter your choice: '))
+            option = int(input('Enter your choice: \n'))
         except ValueError:
             print('Wrong input. Please enter a number ...')
         # Check that choice is within range of options
@@ -107,7 +107,7 @@ def get_menu_index_from(menu_dict):
 
         option = ''
         try:
-            option = int(input('Enter your choice: '))
+            option = int(input('Enter your choice: \n'))
         except ValueError:
             print('Wrong input. Please enter a number ...')
         # Check that choice is within range of options
@@ -129,7 +129,7 @@ def get_time_duration(appliance):
     """
     while True:
         print(f"How long will the {appliance.lower()} run?")
-        duration = input("Enter the duration in HH:MM\n")
+        duration = input("Enter the duration in HH:MM \n")
         if validate_time(duration):
             break
 
@@ -142,7 +142,7 @@ def get_end_time():
     """
     while True:
         end_time = input("Enter the time in HH:MM 24hr clock format "
-                         "(i.e. 23:30 for 11.30pm)\n")
+                         "(i.e. 23:30 for 11.30pm) \n")
         # before time validation, check for empty field, return false if empty
         if not end_time:
             end_time = False
