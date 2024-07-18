@@ -275,25 +275,33 @@ def compute_result():
 
     # Start time -----------------------
     if user_data['timer_index'] == 3:
-        print("Calculating start time...\n")
         if user_data['end_time']:
+            # Is there time for cycle to complete before specified end time 
             if (end_time - timedelta(minutes = duration_in_minutes) > now):
-                # start at future time 
+                # yes there is, so start time can be set (to future time!) 
                 start_time = end_time - timedelta(minutes = duration_in_minutes)
-                print(f"To finish at {user_data['end_time']}, set the start delay on your {user_data['appliance'].lower()} to "
-                    f"{int(end_delay.total_seconds() // 3600)} hours and {int((end_delay.total_seconds()//60)%60)} minutes.\n\n")
+                print(f"To finish at {user_data['end_time']}, set the start time on your {user_data['appliance'].lower()} to "
+                    f"{start_time.strftime("%H:%M")}.\n\n")            
+            else: 
+                # not enough time to complete cycle before specified end time, so start now & tell user when it'll actually finish
+                adjusted_end_time = now + timedelta(minutes = duration_in_minutes)
+                print(f"The selected cycle duration of {user_data['duration']} will cause your {user_data['appliance'].lower()} "
+                      f"to finish after your preferred end time of {user_data['end_time']}, so it's best to start it right away.\n"
+                      f"If you start it now, it'll finish at {adjusted_end_time.strftime("%H:%M")}.\n\n")    
 
-            # else: 
-                # start is in past, so start now and tell user time it'll actually finish
-
-        
-        # if end time specified and (end time - cycle duration) is later than now, 
-        #   set start time to (end time - cycle duration)
-        # if (time window end - cycle duration) is earlier than current time, start now 
-        
-        # 
-        # if no end time specified and time start window is later than current time, set start time to time window start
-        # if 
+            # Add warnings & suggestions if outside low rate time window
+            # if end time is later than the time window end, suggest start time of (time window end - cycle duration)
+            if end_time > time_window_end:
+                start_time = time_window_end - timedelta(minutes = duration_in_minutes)
+                print(f"WARNING! Your preferred end time of {user_data['end_time']} falls outside of the selected low rate time window. \n"
+                    f"To maximise savings, you could set the start time to {start_time.strftime("%H:%M")}\n"
+                    f"which would result in your {user_data['appliance'].lower()} finishing at {user_data['window_end']}.\n")
+            # or if end time is before time window start, suggest starting at time window start
+            elif end_time < time_window_start:
+                adjusted_end_time = time_window_start + timedelta(minutes = duration_in_minutes)
+                print(f"WARNING! Your preferred end time of {user_data['end_time']} means that it'll finish before the low rate time window starts. \n"
+                    f"To maximise savings, you could set the start time to {user_data['window_start']}\n"
+                    f"which would result in your {user_data['appliance'].lower()} finishing at {adjusted_end_time.strftime("%H:%M")}.\n")            
 
     
     # End time -----------------------
