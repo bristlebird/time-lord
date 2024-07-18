@@ -36,8 +36,7 @@ timer_options = {
     2: ['End delay (number of hours until appliance is finished)'],
     3: ['Start time'],
     4: ['End time'],
-    5: ['None of the above'],
-    6: ['Exit']
+    5: ['Exit']
 }
 
 appliances = ['Dishwasher', 'Washing machine', 'Bread machine',
