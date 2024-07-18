@@ -97,7 +97,7 @@ def set_appliance(appliance_list):
 def get_menu_index_from(menu_dict):
     """
     Allows user to choose an option from a menu dictionary
-    passed as an argument. 
+    passed as an argument.
     Credit - menu system adapted from:
     https://computinglearner.com/
     how-to-create-a-menu-for-a-python-console-application/
