@@ -97,7 +97,10 @@ def set_appliance(appliance_list):
 def get_menu_index_from(menu_dict):
     """
     Allows user to choose an option from a menu dictionary
-    passed as an argument
+    passed as an argument. 
+    Credit - menu system adapted from:
+    https://computinglearner.com/
+    how-to-create-a-menu-for-a-python-console-application/
     """
     while (True):
         print("Please choose one of the following options:")
@@ -154,16 +157,12 @@ def get_end_time():
 
 def validate_time(time_str):
     """
-    Passing required format string to datetime object's strptime method seemed
-    quickest!:
+    By passing required format string to datetime object's strptime method
+    Credit:
     https://stackoverflow.com/questions/33076617/how-to-validate-time-format
-    Was going to check for 2 integers, one for hours,
-    one for minutes, either side of a :
-    then check minutes within range of 0-59 & hours within 0-23
     """
-    timeformat = "%H:%M"
     try:
-        datetime.strptime(time_str, timeformat)
+        datetime.strptime(time_str, "%H:%M")
     except ValueError as e:
         print(f"Invalid data: {e}, please try again.\n")
         return False
@@ -174,7 +173,7 @@ def validate_time(time_str):
 def compute_result():
     """
     Calculate the start delay / end delay / start time / end time
-    from user input.
+    from user input & return the result to the user.
     """
 
     # convert window_start & window_end to date objects
@@ -191,11 +190,6 @@ def compute_result():
     # cycle duration
     hours, mins = user_data['duration'].split(':')
     duration_in_minutes = (int(hours) * 60) + int(mins)
-
-    selected_time_window = (
-        f"Your electricity low rate runs from "
-        f"{user_data['window_start']} to {user_data['window_end']}.\n"
-    )
 
     # get end time into correct format for calculations if it's set
     # by adding todays date and making timezone aware
@@ -225,7 +219,10 @@ def compute_result():
     time_window_end = time_window_start + timedelta(hours=int(window_duration))
 
     print(RESULT_BANNER)
-    print(selected_time_window)
+    print(
+        f"Your electricity low rate runs from "
+        f"{user_data['window_start']} to {user_data['window_end']}.\n"
+    )
 
     # Start delay -----------------------
     if user_data['timer_index'] == 1:
