@@ -6,11 +6,6 @@ import pytz
 # SET UP SOME GLOBAL VARIABLES & DATA STRUCTURES FOR MENUS & USER DATA
 
 local_tz = "Europe/Dublin"
-now = datetime.now(pytz.timezone(local_tz))
-RESULT_BANNER = (
-    f"\n\n———————\nRESULT:\n———————\n\n"
-    f"The current time in Ireland is: {now.strftime('%H:%M')}\n"
-)
 
 """
 A selection of most common night / cheap rate time windows
@@ -177,7 +172,8 @@ def compute_result():
     Calculate the start delay / end delay / start time / end time
     from user input & return the result to the user.
     """
-
+    # set current time
+    now = datetime.now(pytz.timezone(local_tz))
     # convert window_start & window_end to date objects
     time_window_start = datetime.strptime(user_data['window_start'], "%H:%M")
     time_window_end = datetime.strptime(user_data['window_end'], "%H:%M")
@@ -220,7 +216,10 @@ def compute_result():
     # time window end
     time_window_end = time_window_start + timedelta(hours=int(window_duration))
 
-    print(RESULT_BANNER)
+    print(
+        f"\n\n———————\nRESULT:\n———————\n\n"
+        f"The current time in Ireland is: {now.strftime('%H:%M')}\n"
+    )
     print(
         f"Your electricity low rate runs from "
         f"{user_data['window_start']} to {user_data['window_end']}.\n"
