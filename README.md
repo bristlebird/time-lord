@@ -64,6 +64,8 @@ The app calculates output values for each of the following input options.
 3. **Start time** — make a recommendation based on time night time starts, or use cycle duration to calculate start time from the preferred end time, and suggest time to fit low rate.
 4. **End time** — just use preferred end time if set & suggest end time to fall within the low rate window if the preferred time doesn't.
 
+![](assets/docs/flowchart.png)
+
 <a name="app-flow"></a>
 ## Application Flow
 ### Step 1 - Select the low rate time window (required)
@@ -90,17 +92,18 @@ The app calculates output values for each of the following input options.
 
 <a name="technologies"></a>
 ## Technologies Used
-1. Python — for the main application logic
+1. [Python](https://www.python.org/) — for the main application logic
 2. Python modules / libraries:
 	- [datetime module](https://docs.python.org/3/library/datetime.html)  - used in the calculation and manipulation of dates and times
 	- [pytz library](https://pypi.org/project/pytz/) - used set correct timezone location  
-2. Heroku — for app deplyment & hosting
-3. Git — for version control
-3. Github — for code storage / repository
-4. Gitpod — IDE used to write the code
-5. Visual Studio Code for Mac — IDE also used to write code (connected to Gitpod Workspace)
-5. [Code Institute's Python essentials template](https://github.com/Code-Institute-Org/python-essentials-template)
-6. [Macdown](https://macdown.uranusjr.com/) — open source Markdown editor for macOS, used to create this README
+3. [Heroku](https://dashboard.heroku.com/) — for app deplyment & hosting
+4. [Git](https://git-scm.com/) — for version control
+5. [Github](https://github.com/bristlebird/time-lord) — for code storage / this repository
+6. [Gitpod](https://gitpod.io/) — IDE used to write the code
+7. [Visual Studio Code for Mac](https://code.visualstudio.com/) — IDE also used to write code (connected to Gitpod Workspace)
+8. [Code Institute's Python essentials template](https://github.com/Code-Institute-Org/python-essentials-template)
+9. [Macdown](https://macdown.uranusjr.com/) — open source Markdown editor for macOS, used to create this README
+10. [Lucid Charts](https://lucid.app/) — used to create flowchart
 
 <a name="deployment"></a>
 ##  Deployment Procedure
@@ -138,14 +141,12 @@ If you want to fork this project and deploy this app on Heroku, you can follow t
 | Correct start delay when current time within low rate window that does span midnight, end time set  | Pass |
 | Correct start delay when current time not within low rate window that doesn't span midnight | Pass |
 | Correct start delay when current time not within low rate window that doesn't span midnight, end time set  | Pass |
-
 | Correct end delay when current time within low rate window that doesn't span midnight  | Pass |
 | Correct end delay when current time within low rate window that doesn't span midnight, end time set  | Pass |
 | Correct end delay when current time within low rate window that does span midnight  | Fail |
 | Correct end delay when current time within low rate window that does span midnight, end time set  | Pass |
 | Correct end delay when current time not within low rate window that doesn't span midnight | Pass |
 | Correct end delay when current time not within low rate window that doesn't span midnight, end time set  | Pass |
-
 | Correct start time when current time within low rate window that doesn't span midnight  | Pass |
 | Correct start time when current time within low rate window that doesn't span midnight, end time set  | Pass |
 | Correct start time when current time within low rate window that does span midnight  | Pass |
@@ -154,7 +155,6 @@ If you want to fork this project and deploy this app on Heroku, you can follow t
 | Correct start time when current time not within low rate window that doesn't span midnight, end time set  | Pass |
 | Correct start time warning / suggestion when current time within low rate window that does span midnight, end time set to after low rate end  | Fail |
 | Correct start time warning / suggestion when current time not within low rate window that doesn't span midnight, end time set to after low rate end  | Pass |
-
 | Correct end time when current time within low rate window that doesn't span midnight  | Pass |
 | Correct end time when current time within low rate window that doesn't span midnight, end time set  | Pass |
 | Correct end time when current time within low rate window that does span midnight  | Pass |
@@ -163,6 +163,11 @@ If you want to fork this project and deploy this app on Heroku, you can follow t
 | Correct start time when current time not within low rate window that doesn't span midnight, end time set  | Pass |
 
 ### Error handling tests
+
+Validation errors were handled and messages explicitly output when incorrect data was entered:
+- Error message for non integer entry to menu selection: 'Wrong input. Please enter a number ...'
+- Error message for integer out of range of menu selection: 'Invalid option. Please enter a number between 1 and (length of menu)'
+- Error message when invalid time format entered: 'Invalid data {e}, please try again'
 
 | Test | Result |
 | -- | -- |
