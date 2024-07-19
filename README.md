@@ -91,6 +91,9 @@ The app calculates output values for each of the following input options.
 <a name="technologies"></a>
 ## Technologies Used
 1. Python — for the main application logic
+2. Python modules / libraries:
+	- [datetime module](https://docs.python.org/3/library/datetime.html)  - used in the calculation and manipulation of dates and times
+	- [pytz library](https://pypi.org/project/pytz/) - used set correct timezone location  
 2. Heroku — for app deplyment & hosting
 3. Git — for version control
 3. Github — for code storage / repository
@@ -189,6 +192,8 @@ If you want to fork this project and deploy this app on Heroku, you can follow t
 	- [Time input validation in python](https://stackoverflow.com/questions/33076617/how-to-validate-time-format)
 	- [Get duration between 2 python datetime objects](https://stackoverflow.com/questions/43305577/python-calculate-the-difference-between-two-datetime-time-objects) 
 - Code Institute: [Alan Bushell's Blackjack project Readme structure](https://github.com/Alan-Bushell/blackjack/)
+- FreeCodeCamp: [timezone module required to get current local time](https://www.freecodecamp.org/news/how-to-get-the-current-time-in-python-with-datetime/)
+
 
 <a name="acknowledgements"></a>
 ## Acknowledgements
