@@ -36,6 +36,9 @@ In some cases you'll want a cycle to finish at a certain time: bread, for exampl
 
 In most cases, an appliance will have several different cycles of varying durations, and turn themselves off automatically when the cycle is complete, so you'll usually need to know what the cycle duration is — this is usually displayed on the appliance when the cycle is selected. Sometimes you'll have to set your own 'cooking time / duration' in addition to setting a start time or onset delay.
 
+### Target Audience
+Homeowners, parents, renters — essentially anyone who's involved in running and financing the domestic side of a household.
+
 ### The Solution
 
 The objective is to run appliances at cheaper night rate & to help you set your appliance timers so that they run at the best and most cost effective time. Based on your low rate time window, the appliance's cycle duration, when you'd like it to end, Time Lord will do all the tricky time based maths and tell you what the best time or delay value to set the timer with, depending on the required input.
